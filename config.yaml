@@ -7,7 +7,7 @@ mysql:
   config: charset=utf8mb4&parseTime=True&loc=Local
   db-name: newbee_mall_db_v2
   username: root
-  password: root
+  password: 12345678
   max-idle-conns: 0
   max-open-conns: 0
   log-mode: ""
