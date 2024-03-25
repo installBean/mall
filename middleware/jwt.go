@@ -1,10 +1,11 @@
 package middleware
 
 import (
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"main.go/model/common/response"
 	"main.go/service"
-	"time"
 )
 
 var manageAdminUserTokenService = service.ServiceGroupApp.ManageServiceGroup.ManageAdminUserTokenService
@@ -26,11 +27,11 @@ func AdminJWTAuth() gin.HandlerFunc {
 		}
 		if time.Now().After(mallAdminUserToken.ExpireTime) {
 			response.FailWithDetailed(nil, "授权已过期", c)
+			c.Abort()
 			err = manageAdminUserTokenService.DeleteMallAdminUserToken(token)
 			if err != nil {
 				return
 			}
-			c.Abort()
 			return
 		}
 		c.Next()
@@ -54,6 +55,7 @@ func UserJWTAuth() gin.HandlerFunc {
 		}
 		if time.Now().After(mallUserToken.ExpireTime) {
 			response.FailWithDetailed(nil, "授权已过期", c)
+			c.Abort()
 			err = mallUserTokenService.DeleteMallUserToken(token)
 			if err != nil {
 				return
