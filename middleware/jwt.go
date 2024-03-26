@@ -15,23 +15,20 @@ func AdminJWTAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token := c.Request.Header.Get("token")
 		if token == "" {
-			response.FailWithDetailed(nil, "未登录或非法访问", c)
+			response.UnLogin(nil, c)
 			c.Abort()
 			return
 		}
 		err, mallAdminUserToken := manageAdminUserTokenService.ExistAdminToken(token)
 		if err != nil {
-			response.FailWithDetailed(nil, "未登录或非法访问", c)
+			response.UnLogin(nil, c)
 			c.Abort()
 			return
 		}
 		if time.Now().After(mallAdminUserToken.ExpireTime) {
-			response.FailWithDetailed(nil, "授权已过期", c)
+			response.UnLogin(nil, c)
 			c.Abort()
-			err = manageAdminUserTokenService.DeleteMallAdminUserToken(token)
-			if err != nil {
-				return
-			}
+			manageAdminUserTokenService.DeleteMallAdminUserToken(token)
 			return
 		}
 		c.Next()
@@ -54,13 +51,9 @@ func UserJWTAuth() gin.HandlerFunc {
 			return
 		}
 		if time.Now().After(mallUserToken.ExpireTime) {
-			response.FailWithDetailed(nil, "授权已过期", c)
+			response.UnLogin(nil, c)
 			c.Abort()
-			err = mallUserTokenService.DeleteMallUserToken(token)
-			if err != nil {
-				return
-			}
-			c.Abort()
+			mallUserTokenService.DeleteMallUserToken(token)
 			return
 		}
 		c.Next()
