@@ -2,12 +2,13 @@ package mall
 
 import (
 	"errors"
+	"time"
+
 	"github.com/jinzhu/copier"
 	"main.go/global"
 	"main.go/model/common"
 	"main.go/model/mall"
 	mallReq "main.go/model/mall/request"
-	"time"
 )
 
 type MallUserAddressService struct {
@@ -15,6 +16,7 @@ type MallUserAddressService struct {
 
 // GetMyAddress 获取收货地址
 func (m *MallUserAddressService) GetMyAddress(token string) (err error, userAddress []mall.MallUserAddress) {
+	userAddress = []mall.MallUserAddress{}
 	var userToken mall.MallUserToken
 	err = global.GVA_DB.Where("token =?", token).First(&userToken).Error
 	if err != nil {
@@ -90,6 +92,7 @@ func (m *MallUserAddressService) UpdateUserAddress(token string, req mallReq.Upd
 }
 
 func (m *MallUserAddressService) GetMallUserAddressById(token string, id int) (err error, userAddress mall.MallUserAddress) {
+	userAddress = mall.MallUserAddress{}
 	var userToken mall.MallUserToken
 	if err = global.GVA_DB.Where("token =?", token).First(&userToken).Error; err != nil {
 		return errors.New("不存在的用户"), userAddress
@@ -104,6 +107,7 @@ func (m *MallUserAddressService) GetMallUserAddressById(token string, id int) (e
 }
 
 func (m *MallUserAddressService) GetMallUserDefaultAddress(token string) (err error, userAddress mall.MallUserAddress) {
+	userAddress = mall.MallUserAddress{}
 	var userToken mall.MallUserToken
 	if err = global.GVA_DB.Where("token =?", token).First(&userToken).Error; err != nil {
 		return errors.New("不存在的用户"), userAddress

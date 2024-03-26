@@ -2,6 +2,9 @@ package manage
 
 import (
 	"errors"
+	"strconv"
+	"time"
+
 	"gorm.io/gorm"
 	"main.go/global"
 	"main.go/model/common"
@@ -9,8 +12,6 @@ import (
 	"main.go/model/manage"
 	manageReq "main.go/model/manage/request"
 	"main.go/utils"
-	"strconv"
-	"time"
 )
 
 type ManageCarouselService struct {
@@ -58,6 +59,7 @@ func (m *ManageCarouselService) UpdateCarousel(req manageReq.MallCarouselUpdateP
 }
 
 func (m *ManageCarouselService) GetCarousel(id int) (err error, mallCarousel manage.MallCarousel) {
+	mallCarousel = manage.MallCarousel{}
 	err = global.GVA_DB.Where("carousel_id = ?", id).First(&mallCarousel).Error
 	return
 }

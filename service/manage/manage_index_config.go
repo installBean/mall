@@ -2,6 +2,9 @@ package manage
 
 import (
 	"errors"
+	"strconv"
+	"time"
+
 	"gorm.io/gorm"
 	"main.go/global"
 	"main.go/model/common"
@@ -9,8 +12,6 @@ import (
 	"main.go/model/manage"
 	manageReq "main.go/model/manage/request"
 	"main.go/utils"
-	"strconv"
-	"time"
 )
 
 type ManageIndexConfigService struct {
@@ -83,6 +84,7 @@ func (m *ManageIndexConfigService) UpdateMallIndexConfig(req manageReq.MallIndex
 
 // GetMallIndexConfig 根据id获取MallIndexConfig记录
 func (m *ManageIndexConfigService) GetMallIndexConfig(id uint) (err error, mallIndexConfig manage.MallIndexConfig) {
+	mallIndexConfig = manage.MallIndexConfig{}
 	err = global.GVA_DB.Where("config_id = ?", id).First(&mallIndexConfig).Error
 	return
 }

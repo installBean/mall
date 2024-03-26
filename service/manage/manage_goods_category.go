@@ -2,6 +2,9 @@ package manage
 
 import (
 	"errors"
+	"strconv"
+	"time"
+
 	"gorm.io/gorm"
 	"main.go/global"
 	"main.go/model/common"
@@ -9,8 +12,6 @@ import (
 	"main.go/model/manage"
 	manageReq "main.go/model/manage/request"
 	"main.go/utils"
-	"strconv"
-	"time"
 )
 
 type ManageGoodsCategoryService struct {
@@ -88,18 +89,20 @@ func (m *ManageGoodsCategoryService) SelectCategoryPage(req manageReq.SearchCate
 
 // SelectCategoryById 获取单个分类数据
 func (m *ManageGoodsCategoryService) SelectCategoryById(categoryId int) (err error, goodsCategory manage.MallGoodsCategory) {
+	goodsCategory = manage.MallGoodsCategory{}
 	err = global.GVA_DB.Where("category_id=?", categoryId).First(&goodsCategory).Error
-	return err, goodsCategory
+	return
 }
 
 // DeleteGoodsCategoriesByIds 批量设置失效
 func (m *ManageGoodsCategoryService) DeleteGoodsCategoriesByIds(ids request.IdsReq) (err error, goodsCategory manage.MallGoodsCategory) {
+	goodsCategory = manage.MallGoodsCategory{}
 	err = global.GVA_DB.Where("category_id in ?", ids.Ids).UpdateColumns(manage.MallGoodsCategory{IsDeleted: 1}).Error
-	return err, goodsCategory
+	return
 }
 
 func (m *ManageGoodsCategoryService) SelectByLevelAndParentIdsAndNumber(parentId int, categoryLevel int) (err error, goodsCategories []manage.MallGoodsCategory) {
-	err = global.GVA_DB.Where("category_id in ?", parentId).Where("category_level=?", categoryLevel).Where("is_deleted=0").Error
-	return err, goodsCategories
-
+	goodsCategories = []manage.MallGoodsCategory{}
+	err = global.GVA_DB.Where("parent_id=?", parentId).Where("category_level=?", categoryLevel).Where("is_deleted=0").Find(&goodsCategories).Error
+	return
 }

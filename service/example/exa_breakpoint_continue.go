@@ -2,6 +2,7 @@ package example
 
 import (
 	"errors"
+
 	"gorm.io/gorm"
 	"main.go/global"
 	"main.go/model/example"
@@ -17,6 +18,7 @@ type FileUploadAndDownloadService struct {
 //@return: err error, file model.ExaFile
 
 func (e *FileUploadAndDownloadService) FindOrCreateFile(fileMd5 string, fileName string, chunkTotal int) (err error, file example.ExaFile) {
+	file = example.ExaFile{}
 	var cfile example.ExaFile
 	cfile.FileMd5 = fileMd5
 	cfile.FileName = fileName

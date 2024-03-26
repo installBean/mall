@@ -2,6 +2,10 @@ package mall
 
 import (
 	"errors"
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/jinzhu/copier"
 	"gorm.io/gorm"
 	"main.go/global"
@@ -10,9 +14,6 @@ import (
 	mallReq "main.go/model/mall/request"
 	mallRes "main.go/model/mall/response"
 	"main.go/utils"
-	"strconv"
-	"strings"
-	"time"
 )
 
 type MallUserService struct {
@@ -41,6 +42,9 @@ func (m *MallUserService) UpdateUserInfo(token string, req mallReq.UpdateUserInf
 	}
 	var userInfo mall.MallUser
 	err = global.GVA_DB.Where("user_id =?", userToken.UserId).First(&userInfo).Error
+	if err != nil {
+		return errors.New("不存在的用户")
+	}
 	// 若密码为空字符，则表明用户不打算修改密码，使用原密码保存
 	if !(req.PasswordMd5 == "") {
 		userInfo.PasswordMd5 = utils.MD5V([]byte(req.PasswordMd5))
@@ -52,6 +56,7 @@ func (m *MallUserService) UpdateUserInfo(token string, req mallReq.UpdateUserInf
 }
 
 func (m *MallUserService) GetUserDetail(token string) (err error, userDetail mallRes.MallUserDetailResponse) {
+	userDetail = mallRes.MallUserDetailResponse{}
 	var userToken mall.MallUserToken
 	err = global.GVA_DB.Where("token =?", token).First(&userToken).Error
 	if err != nil {
@@ -67,6 +72,8 @@ func (m *MallUserService) GetUserDetail(token string) (err error, userDetail mal
 }
 
 func (m *MallUserService) UserLogin(params mallReq.UserLoginParam) (err error, user mall.MallUser, userToken mall.MallUserToken) {
+	user = mall.MallUser{}
+	userToken = mall.MallUserToken{}
 	err = global.GVA_DB.Where("login_name=? AND password_md5=?", params.LoginName, params.PasswordMd5).First(&user).Error
 	if user != (mall.MallUser{}) {
 		token := getNewToken(time.Now().UnixNano()/1e6, int(user.UserId))

@@ -2,6 +2,9 @@ package manage
 
 import (
 	"errors"
+	"strconv"
+	"time"
+
 	"gorm.io/gorm"
 	"main.go/global"
 	"main.go/model/common"
@@ -10,8 +13,6 @@ import (
 	"main.go/model/manage"
 	manageReq "main.go/model/manage/request"
 	"main.go/utils"
-	"strconv"
-	"time"
 )
 
 type ManageGoodsInfoService struct {
@@ -21,12 +22,14 @@ type ManageGoodsInfoService struct {
 func (m *ManageGoodsInfoService) CreateMallGoodsInfo(req manageReq.GoodsInfoAddParam) (err error) {
 	var goodsCategory manage.MallGoodsCategory
 	err = global.GVA_DB.Where("category_id=?  AND is_deleted=0", req.GoodsCategoryId).First(&goodsCategory).Error
-	if goodsCategory.CategoryLevel != enum.LevelThree.Code() {
+	if err != nil || goodsCategory.CategoryLevel != enum.LevelThree.Code() {
 		return errors.New("分类数据异常")
 	}
-	if !errors.Is(global.GVA_DB.Where("goods_name=? AND goods_category_id=?", req.GoodsName, req.GoodsCategoryId).First(&manage.MallGoodsInfo{}).Error, gorm.ErrRecordNotFound) {
+	err = global.GVA_DB.Where("goods_name=? AND goods_category_id=?", req.GoodsName, req.GoodsCategoryId).First(&manage.MallGoodsInfo{}).Error
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return errors.New("已存在相同的商品信息")
 	}
+
 	originalPrice, _ := strconv.Atoi(req.OriginalPrice)
 	sellingPrice, _ := strconv.Atoi(req.SellingPrice)
 	stockNum, _ := strconv.Atoi(req.StockNum)
@@ -94,6 +97,7 @@ func (m *ManageGoodsInfoService) UpdateMallGoodsInfo(req manageReq.GoodsInfoUpda
 
 // GetMallGoodsInfo 根据id获取MallGoodsInfo记录
 func (m *ManageGoodsInfoService) GetMallGoodsInfo(id int) (err error, mallGoodsInfo manage.MallGoodsInfo) {
+	mallGoodsInfo = manage.MallGoodsInfo{}
 	err = global.GVA_DB.Where("goods_id = ?", id).First(&mallGoodsInfo).Error
 	return
 }

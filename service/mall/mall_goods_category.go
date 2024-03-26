@@ -12,7 +12,7 @@ type MallGoodsCategoryService struct {
 }
 
 func (m *MallGoodsCategoryService) GetCategoriesForIndex() (err error, newBeeMallIndexCategoryVOS []mallRes.NewBeeMallIndexCategoryVO) {
-
+	newBeeMallIndexCategoryVOS = make([]mallRes.NewBeeMallIndexCategoryVO, 0)
 	//获取一级分类的固定数量的数据
 	_, firstLevelCategories := selectByLevelAndParentIdsAndNumber([]int{0}, enum.LevelOne.Code(), 10)
 	if firstLevelCategories != nil {
@@ -70,7 +70,10 @@ func (m *MallGoodsCategoryService) GetCategoriesForIndex() (err error, newBeeMal
 						for _, second := range secondLevelCategoryVOS {
 							if k == second.ParentId {
 								var secondLevelCategory mallRes.SecondLevelCategoryVO
-								copier.Copy(&secondLevelCategory, &second)
+								err = copier.Copy(&secondLevelCategory, &second)
+								if err != nil {
+									return
+								}
 								v = append(v, secondLevelCategory)
 							}
 							secondLevelCategoryVOMap[k] = v
@@ -96,8 +99,9 @@ func (m *MallGoodsCategoryService) GetCategoriesForIndex() (err error, newBeeMal
 
 // 获取分类数据
 func selectByLevelAndParentIdsAndNumber(ids []int, level int, limit int) (err error, categories []manage.MallGoodsCategory) {
-
-	global.GVA_DB.Where("parent_id in ? and category_level =? and is_deleted = 0", ids, level).
-		Order("category_rank desc").Limit(limit).Find(&categories)
+	categories = []manage.MallGoodsCategory{}
+	// 查询分类数据
+	err = global.GVA_DB.Where("parent_id in ?", ids).Where("category_level=?", level).Where("is_deleted = 0").
+		Order("category_rank desc").Limit(limit).Find(&categories).Error
 	return
 }

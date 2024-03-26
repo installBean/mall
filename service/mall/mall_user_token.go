@@ -9,6 +9,7 @@ type MallUserTokenService struct {
 }
 
 func (m *MallUserTokenService) ExistUserToken(token string) (err error, mallUserToken mall.MallUserToken) {
+	mallUserToken = mall.MallUserToken{}
 	err = global.GVA_DB.Where("token =?", token).First(&mallUserToken).Error
 	return
 }

@@ -2,14 +2,15 @@ package manage
 
 import (
 	"errors"
+	"strconv"
+	"strings"
+	"time"
+
 	"gorm.io/gorm"
 	"main.go/global"
 	"main.go/model/manage"
 	manageReq "main.go/model/manage/request"
 	"main.go/utils"
-	"strconv"
-	"strings"
-	"time"
 )
 
 type ManageAdminUserService struct {
@@ -60,16 +61,20 @@ func (m *ManageAdminUserService) UpdateMallAdminPassWord(token string, req manag
 
 // GetMallAdminUser 根据id获取MallAdminUser记录
 func (m *ManageAdminUserService) GetMallAdminUser(token string) (err error, mallAdminUser manage.MallAdminUser) {
+	mallAdminUser = manage.MallAdminUser{}
 	var adminToken manage.MallAdminUserToken
 	if errors.Is(global.GVA_DB.Where("token =?", token).First(&adminToken).Error, gorm.ErrRecordNotFound) {
 		return errors.New("不存在的用户"), mallAdminUser
 	}
+
 	err = global.GVA_DB.Where("admin_user_id = ?", adminToken.AdminUserId).First(&mallAdminUser).Error
 	return err, mallAdminUser
 }
 
 // AdminLogin 管理员登陆
 func (m *ManageAdminUserService) AdminLogin(params manageReq.MallAdminLoginParam) (err error, mallAdminUser manage.MallAdminUser, adminToken manage.MallAdminUserToken) {
+	mallAdminUser = manage.MallAdminUser{}
+	adminToken = manage.MallAdminUserToken{}
 	err = global.GVA_DB.Where("login_user_name=? AND login_password=?", params.UserName, params.PasswordMd5).First(&mallAdminUser).Error
 	if mallAdminUser != (manage.MallAdminUser{}) {
 		token := getNewToken(time.Now().UnixNano()/1e6, int(mallAdminUser.AdminUserId))

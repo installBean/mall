@@ -4,10 +4,12 @@
 *.dll
 *.so
 *.dylib
+*.vscode
 log
 go.sum
-
-
+mall
+main
+static
 # Test binary, built with `go test -c`
 *.test
 

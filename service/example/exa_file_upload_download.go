@@ -2,12 +2,13 @@ package example
 
 import (
 	"errors"
+	"mime/multipart"
+	"strings"
+
 	"main.go/global"
 	"main.go/model/common/request"
 	"main.go/model/example"
 	"main.go/utils/upload"
-	"mime/multipart"
-	"strings"
 )
 
 //@author: [piexlmax](https://github.com/piexlmax)
@@ -78,10 +79,11 @@ func (e *FileUploadAndDownloadService) GetFileRecordInfoList(info request.PageIn
 //@return: err error, file model.ExaFileUploadAndDownload
 
 func (e *FileUploadAndDownloadService) UploadFile(header *multipart.FileHeader, noSave string) (err error, file example.ExaFileUploadAndDownload) {
+	file = example.ExaFileUploadAndDownload{}
 	oss := upload.NewOss()
 	filePath, key, uploadErr := oss.UploadFile(header)
 	if uploadErr != nil {
-		panic(err)
+		return uploadErr, file
 	}
 	if noSave == "0" {
 		s := strings.Split(header.Filename, ".")

@@ -19,6 +19,7 @@ type MallShopCartService struct {
 
 // GetMyShoppingCartItems 不分页
 func (m *MallShopCartService) GetMyShoppingCartItems(token string) (err error, cartItems []mallRes.CartItemResponse) {
+	cartItems = []mallRes.CartItemResponse{}
 	var userToken mall.MallUserToken
 	var shopCartItems []mall.MallShoppingCartItem
 	var goodsInfos []manage.MallGoodsInfo
@@ -132,6 +133,7 @@ func (m *MallShopCartService) DeleteMallCartItem(token string, id int) (err erro
 }
 
 func (m *MallShopCartService) GetCartItemsForSettle(token string, cartItemIds []int) (err error, cartItemRes []mallRes.CartItemResponse) {
+	cartItemRes = []mallRes.CartItemResponse{}
 	var userToken mall.MallUserToken
 	err = global.GVA_DB.Where("token =?", token).First(&userToken).Error
 	if err != nil {
@@ -153,6 +155,7 @@ func (m *MallShopCartService) GetCartItemsForSettle(token string, cartItemIds []
 
 // 购物车数据转换
 func getMallShoppingCartItemVOS(cartItems []mall.MallShoppingCartItem) (err error, cartItemsRes []mallRes.CartItemResponse) {
+	cartItemsRes = []mallRes.CartItemResponse{}
 	var goodsIds []int
 	for _, cartItem := range cartItems {
 		goodsIds = append(goodsIds, cartItem.GoodsId)

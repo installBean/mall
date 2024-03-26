@@ -2,6 +2,8 @@ package mall
 
 import (
 	"errors"
+	"time"
+
 	"github.com/jinzhu/copier"
 	"main.go/global"
 	"main.go/model/common"
@@ -11,7 +13,6 @@ import (
 	"main.go/model/manage"
 	manageReq "main.go/model/manage/request"
 	"main.go/utils"
-	"time"
 )
 
 type MallOrderService struct {
@@ -56,7 +57,10 @@ func (m *MallOrderService) SaveOrder(token string, userAddress mall.MallUserAddr
 	if len(itemIdList) > 0 && len(goodsIds) > 0 {
 		if err = global.GVA_DB.Where("cart_item_id in ?", itemIdList).Updates(mall.MallShoppingCartItem{IsDeleted: 1}).Error; err == nil {
 			var stockNumDTOS []manageReq.StockNumDTO
-			copier.Copy(&stockNumDTOS, &myShoppingCartItems)
+			err = copier.Copy(&stockNumDTOS, &myShoppingCartItems)
+			if err != nil {
+				return
+			}
 			for _, stockNumDTO := range stockNumDTOS {
 				var goodsInfo manage.MallGoodsInfo
 				global.GVA_DB.Where("goods_id =?", stockNumDTO.GoodsId).First(&goodsInfo)
@@ -88,13 +92,19 @@ func (m *MallOrderService) SaveOrder(token string, userAddress mall.MallUserAddr
 			}
 			//生成订单收货地址快照，并保存至数据库
 			var newBeeMallOrderAddress mall.MallOrderAddress
-			copier.Copy(&newBeeMallOrderAddress, &userAddress)
+			err = copier.Copy(&newBeeMallOrderAddress, &userAddress)
+			if err != nil {
+				return
+			}
 			newBeeMallOrderAddress.OrderId = newBeeMallOrder.OrderId
 			//生成所有的订单项快照，并保存至数据库
 			var newBeeMallOrderItems []manage.MallOrderItem
 			for _, newBeeMallShoppingCartItemVO := range myShoppingCartItems {
 				var newBeeMallOrderItem manage.MallOrderItem
-				copier.Copy(&newBeeMallOrderItem, &newBeeMallShoppingCartItemVO)
+				err = copier.Copy(&newBeeMallOrderItem, &newBeeMallShoppingCartItemVO)
+				if err != nil {
+					return
+				}
 				newBeeMallOrderItem.OrderId = newBeeMallOrder.OrderId
 				newBeeMallOrderItem.CreateTime = common.JSONTime{Time: time.Now()}
 				newBeeMallOrderItems = append(newBeeMallOrderItems, newBeeMallOrderItem)
@@ -171,6 +181,7 @@ func (m *MallOrderService) CancelOrder(token string, orderNo string) (err error)
 
 // GetOrderDetailByOrderNo 获取订单详情
 func (m *MallOrderService) GetOrderDetailByOrderNo(token string, orderNo string) (err error, orderDetail mallRes.MallOrderDetailVO) {
+	orderDetail = mallRes.MallOrderDetailVO{}
 	var userToken mall.MallUserToken
 	err = global.GVA_DB.Where("token =?", token).First(&userToken).Error
 	if err != nil {
@@ -204,6 +215,7 @@ func (m *MallOrderService) GetOrderDetailByOrderNo(token string, orderNo string)
 
 // MallOrderListBySearch 搜索订单
 func (m *MallOrderService) MallOrderListBySearch(token string, pageNumber int, status string) (err error, list []mallRes.MallOrderResponse, total int64) {
+	list = []mallRes.MallOrderResponse{}
 	var userToken mall.MallUserToken
 	err = global.GVA_DB.Where("token =?", token).First(&userToken).Error
 	if err != nil {

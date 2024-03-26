@@ -2,6 +2,9 @@ package manage
 
 import (
 	"errors"
+	"strconv"
+	"time"
+
 	"github.com/jinzhu/copier"
 	"main.go/global"
 	"main.go/model/common"
@@ -9,8 +12,6 @@ import (
 	"main.go/model/common/request"
 	"main.go/model/manage"
 	manageRes "main.go/model/manage/response"
-	"strconv"
-	"time"
 )
 
 type ManageOrderService struct {
@@ -96,6 +97,7 @@ func (m *ManageOrderService) CloseOrder(ids request.IdsReq) (err error) {
 
 // GetMallOrder 根据id获取MallOrder记录
 func (m *ManageOrderService) GetMallOrder(id string) (err error, newBeeMallOrderDetailVO manageRes.NewBeeMallOrderDetailVO) {
+	newBeeMallOrderDetailVO = manageRes.NewBeeMallOrderDetailVO{}
 	var newBeeMallOrder manage.MallOrder
 	if err = global.GVA_DB.Where("order_id = ?", id).First(&newBeeMallOrder).Error; err != nil {
 		return
@@ -106,7 +108,7 @@ func (m *ManageOrderService) GetMallOrder(id string) (err error, newBeeMallOrder
 	}
 	//获取订单项数据
 	if len(orderItems) > 0 {
-		var newBeeMallOrderItemVOS []manageRes.NewBeeMallOrderItemVO
+		newBeeMallOrderItemVOS := make([]manageRes.NewBeeMallOrderItemVO, len(orderItems))
 		copier.Copy(&newBeeMallOrderItemVOS, &orderItems)
 		copier.Copy(&newBeeMallOrderDetailVO, &newBeeMallOrder)
 
