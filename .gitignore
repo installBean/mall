@@ -9,6 +9,7 @@ log
 go.sum
 mall
 main
+_debug*
 static
 # Test binary, built with `go test -c`
 *.test

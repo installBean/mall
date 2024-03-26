@@ -28,6 +28,7 @@ func (m *ManageGoodsCategoryService) AddCategory(req manageReq.MallGoodsCategory
 		CategoryLevel: req.CategoryLevel,
 		CategoryName:  req.CategoryName,
 		CategoryRank:  rank,
+		ParentId:      req.ParentId,
 		IsDeleted:     0,
 		CreateTime:    common.JSONTime{Time: time.Now()},
 		UpdateTime:    common.JSONTime{Time: time.Now()},
