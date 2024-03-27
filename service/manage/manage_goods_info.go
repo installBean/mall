@@ -30,9 +30,6 @@ func (m *ManageGoodsInfoService) CreateMallGoodsInfo(req manageReq.GoodsInfoAddP
 		return errors.New("已存在相同的商品信息")
 	}
 
-	originalPrice, _ := strconv.Atoi(req.OriginalPrice)
-	sellingPrice, _ := strconv.Atoi(req.SellingPrice)
-	stockNum, _ := strconv.Atoi(req.StockNum)
 	goodsSellStatus, _ := strconv.Atoi(req.GoodsSellStatus)
 	goodsInfo := manage.MallGoodsInfo{
 		GoodsName:          req.GoodsName,
@@ -40,9 +37,9 @@ func (m *ManageGoodsInfoService) CreateMallGoodsInfo(req manageReq.GoodsInfoAddP
 		GoodsCategoryId:    req.GoodsCategoryId,
 		GoodsCoverImg:      req.GoodsCoverImg,
 		GoodsDetailContent: req.GoodsDetailContent,
-		OriginalPrice:      originalPrice,
-		SellingPrice:       sellingPrice,
-		StockNum:           stockNum,
+		OriginalPrice:      req.OriginalPrice,
+		SellingPrice:       req.SellingPrice,
+		StockNum:           req.StockNum,
 		Tag:                req.Tag,
 		GoodsSellStatus:    goodsSellStatus,
 		CreateTime:         common.JSONTime{Time: time.Now()},
@@ -72,8 +69,7 @@ func (m *ManageGoodsInfoService) ChangeMallGoodsInfoByIds(ids request.IdsReq, se
 // UpdateMallGoodsInfo 更新MallGoodsInfo记录
 func (m *ManageGoodsInfoService) UpdateMallGoodsInfo(req manageReq.GoodsInfoUpdateParam) (err error) {
 	goodsId, _ := strconv.Atoi(req.GoodsId)
-	originalPrice, _ := strconv.Atoi(req.OriginalPrice)
-	stockNum, _ := strconv.Atoi(req.StockNum)
+	goodsSellStatus, _ := strconv.Atoi(req.GoodsSellStatus)
 	goodsInfo := manage.MallGoodsInfo{
 		GoodsId:            goodsId,
 		GoodsName:          req.GoodsName,
@@ -81,11 +77,11 @@ func (m *ManageGoodsInfoService) UpdateMallGoodsInfo(req manageReq.GoodsInfoUpda
 		GoodsCategoryId:    req.GoodsCategoryId,
 		GoodsCoverImg:      req.GoodsCoverImg,
 		GoodsDetailContent: req.GoodsDetailContent,
-		OriginalPrice:      originalPrice,
+		OriginalPrice:      req.OriginalPrice,
 		SellingPrice:       req.SellingPrice,
-		StockNum:           stockNum,
+		StockNum:           req.StockNum,
 		Tag:                req.Tag,
-		GoodsSellStatus:    req.GoodsSellStatus,
+		GoodsSellStatus:    goodsSellStatus,
 		UpdateTime:         common.JSONTime{Time: time.Now()},
 	}
 	if err = utils.Verify(goodsInfo, utils.GoodsAddParamVerify); err != nil {
